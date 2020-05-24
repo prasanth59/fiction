@@ -5,6 +5,6 @@ Genre Feature is represented with 20 columns GF20-GF41.
 
 To run the updated code the following step is required:
 'genereFeaturecsvPath' variable in 'ChunkDetailsGenerator.java'class and 'getChunksFromAllFiles()'method
-has to be provided with the path of  genre csv file in the local machine.
+has to be provided with the path of  'Genre_Features.csv' file in the local machine.
 
  
