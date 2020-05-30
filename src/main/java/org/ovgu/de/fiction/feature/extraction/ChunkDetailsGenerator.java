@@ -1,6 +1,12 @@
 package org.ovgu.de.fiction.feature.extraction;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -120,8 +126,9 @@ public class ChunkDetailsGenerator {
 	 *            to book location
 	 * @return : List of Chunks, Chunk has a feature vector object
 	 * @throws IOException
+	 * @throws InterruptedException 
 	 */
-	public List<Chunk> getChunksFromFile(String path) throws IOException {
+	public List<Chunk> getChunksFromFile(String path) throws IOException, InterruptedException {
 
 		int batchNumber;
 		List<Chunk> chunksList = new ArrayList<>();
@@ -148,12 +155,21 @@ public class ChunkDetailsGenerator {
 		List<Word> wordList = cncpt.getWords();
 		int numOfSntncPerBook  = cncpt.getNumOfSentencesPerBook();
 
-		// String fileName =
-		// Paths.get(path).getFileName().toString().replace(Constants.CONTENT_FILE, Constants.NONE);
+		String fileName = Paths.get(path).getFileName().toString().replace(FRConstants.CONTENT_FILE, FRConstants.NONE);
 
 		ParagraphPredicate filter = new ParagraphPredicate();
 		List<Word> copy = new ArrayList<>(wordList);
 		copy.removeIf(filter);
+		
+//		Calculate Feature to encode start and end of book
+		List<String>wordLemma= new  ArrayList<>();
+		wordLemma.add(fileName);
+		for (Word item : copy) {
+			wordLemma.add(item.getLemma());
+		}
+// Function to call python script to encode start and end of book	
+		encode_book(wordLemma,fileName,path);
+		
 		int length = copy.size();
 
 		int remainder = 0;
@@ -372,6 +388,40 @@ public class ChunkDetailsGenerator {
 		return chunksList;
 	}
 
+//	Execute python script to encode start and end of book
+	public void encode_book(List<String>wordLemma, String book_id,String filePath) throws IOException, InterruptedException {
+
+		File file = new File("D:\\Feature\\output.txt");
+		if (file.exists() == true) {
+			System.out.println("deleted file");
+			file.delete();
+		}
+		FileOutputStream fo = new FileOutputStream(file);
+		PrintWriter pw = new PrintWriter(fo);
+
+		for (String elem : wordLemma) {
+			pw.println(elem);
+		}
+		pw.close();
+		fo.close();
+
+//		Code to execute python script with passed parameters
+		ArrayList<String> commandList = new ArrayList<String>();
+		commandList.add("D://shell_script.bat");
+
+		String[] cmd = { "py","-W ignore", "D:\\Feature3.py", "D:\\Feature\\output.txt", filePath,"D:\\Feature\\features.csv"};
+		Process p = Runtime.getRuntime().exec(cmd);
+
+		String s = null;
+		BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+		while ((s = in.readLine()) != null) {
+			System.out.println(s);
+		}
+		p.waitFor();
+		p.destroy();
+
+	}
+	
 	public void addToWordCountMap(List<Word> raw, Map<Integer, Integer> wordCountPerSntncMap, int wordCount) {
 		wordCountPerSntncMap.put(wordCount, !wordCountPerSntncMap.containsKey(wordCount) ? 1 : wordCountPerSntncMap.get(wordCount) + 1);
 	}
