@@ -2,8 +2,8 @@ package org.ovgu.de.fiction.feature.extraction;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -78,7 +78,33 @@ public class ChunkDetailsGenerator {
 
 		List<BookDetails> books = new ArrayList<>();
 		FeatureExtractorUtility feu = new FeatureExtractorUtility();
+		// reading the generated csv and writing it to map
+		
+		
+		
+				HashMap<String,List> genereFeaturemap = new HashMap<String, List>();
+				String line = ""; 
+				String genereFeaturecsvPath = "D:\\SEM-3\\SIMFIC_Project\\Test_Features.csv";  //reading genre features
+				try   
+				{  
+					BufferedReader br = new BufferedReader(new FileReader(genereFeaturecsvPath));  
+					while ((line = br.readLine()) != null)   
+					{  
+						while ((line = br.readLine()) != null) {                  
 
+							String[] newFeature = line.split(","); 
+							List<Float> featureList = new ArrayList<Float>();
+							for (int i = 1; i < newFeature.length ; i++) {
+								featureList.add(Float.valueOf(newFeature[i]));
+							}  
+							genereFeaturemap.put(newFeature[0], featureList);
+						} 
+					}
+				}
+				catch (IOException e)   
+				{  
+					e.printStackTrace();  
+				} 
 		// following loop runs, over path of each book
 		FRFileOperationUtils.getFileNames(CONTENT_EXTRCT_FOLDER).stream().forEach(file -> {
 			String fileName = file.getFileName().toString().replace(FRConstants.CONTENT_FILE, FRConstants.NONE);
@@ -97,7 +123,33 @@ public class ChunkDetailsGenerator {
 																	 // object/vector
 				book.setAverageTTR(feu.getAverageTTR(getEqualChunksFromFile(getTokensFromAllChunks(book.getChunks()))));
 				book.setNumOfChars(NUM_OF_CHARS_PER_BOOK == 0 ? 1 : NUM_OF_CHARS_PER_BOOK);
+				
+				List<Float> bookGenereFeature = genereFeaturemap.get(fileName);
+
+				
+				book.setNewFeature22(bookGenereFeature.get(0));
+				book.setNewFeature23(bookGenereFeature.get(1));
+				book.setNewFeature24(bookGenereFeature.get(2));
+				book.setNewFeature25(bookGenereFeature.get(3));
+				book.setNewFeature26(bookGenereFeature.get(4));
+				book.setNewFeature27(bookGenereFeature.get(5));
+				book.setNewFeature28(bookGenereFeature.get(6));
+				book.setNewFeature29(bookGenereFeature.get(7));
+				book.setNewFeature30(bookGenereFeature.get(8));
+				book.setNewFeature31(bookGenereFeature.get(9));
+				book.setNewFeature32(bookGenereFeature.get(10));
+				book.setNewFeature33(bookGenereFeature.get(11));
+				book.setNewFeature34(bookGenereFeature.get(12));
+				book.setNewFeature35(bookGenereFeature.get(13));
+				book.setNewFeature36(bookGenereFeature.get(14));
+				book.setNewFeature37(bookGenereFeature.get(15));
+				book.setNewFeature38(bookGenereFeature.get(16));
+				book.setNewFeature39(bookGenereFeature.get(17));
+				book.setNewFeature40(bookGenereFeature.get(18));
+				book.setNewFeature41(bookGenereFeature.get(19));
+	
 				books.add(book);
+				
 
 				 //LOG.debug("End Generate token for : " + fileName + " " + ((System.currentTimeMillis() - TIME) / 1000));
 				TIME = System.currentTimeMillis();

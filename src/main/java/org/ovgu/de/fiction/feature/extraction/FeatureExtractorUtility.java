@@ -176,7 +176,35 @@ public class FeatureExtractorUtility {
 				min_NUM_of_CHARS   = book.getNumOfChars();
 				min_TTR            = book.getAverageTTR().doubleValue();
 				}
-							
+					
+				
+					
+			
+				feature_array[FRConstants.GENERE_FEATURE_22] = book.getNewFeature22();	
+				feature_array[FRConstants.GENERE_FEATURE_23] = book.getNewFeature23();
+				feature_array[FRConstants.GENERE_FEATURE_24] = book.getNewFeature24();
+				feature_array[FRConstants.GENERE_FEATURE_25] = book.getNewFeature25();
+				feature_array[FRConstants.GENERE_FEATURE_26] = book.getNewFeature26();
+				feature_array[FRConstants.GENERE_FEATURE_27] = book.getNewFeature27();
+				feature_array[FRConstants.GENERE_FEATURE_28] = book.getNewFeature28();
+				feature_array[FRConstants.GENERE_FEATURE_29] = book.getNewFeature29();
+				feature_array[FRConstants.GENERE_FEATURE_30] = book.getNewFeature30();
+				feature_array[FRConstants.GENERE_FEATURE_31] = book.getNewFeature31();
+				feature_array[FRConstants.GENERE_FEATURE_32] = book.getNewFeature32();
+				feature_array[FRConstants.GENERE_FEATURE_33] = book.getNewFeature33();
+				feature_array[FRConstants.GENERE_FEATURE_34] = book.getNewFeature34();
+				feature_array[FRConstants.GENERE_FEATURE_35] = book.getNewFeature35();
+				feature_array[FRConstants.GENERE_FEATURE_36] = book.getNewFeature36();
+				feature_array[FRConstants.GENERE_FEATURE_37] = book.getNewFeature37();
+				feature_array[FRConstants.GENERE_FEATURE_38] = book.getNewFeature38();
+				feature_array[FRConstants.GENERE_FEATURE_39] = book.getNewFeature39();
+				feature_array[FRConstants.GENERE_FEATURE_40] = book.getNewFeature40();
+				feature_array[FRConstants.GENERE_FEATURE_41] = book.getNewFeature41();
+
+				
+				
+				
+				
 				
 				feature_array[FRConstants.PARAGRAPH_COUNT_0] = feature.getParagraphCount();
 				feature_array[FRConstants.FEMALE_PR_1] = feature.getMalePrpPosPronounRatio();
@@ -248,18 +276,18 @@ public class FeatureExtractorUtility {
 
 			for (Map.Entry<String, double[]> chunk_features : corpus.entrySet()) {
 				fileWriter.append(String.valueOf(chunk_features.getKey()) + FRConstants.COMMA);// 'pg547-1'
-																								// -
-																								// First
-																								// element,
-																								// Primary
-																								// Key
+				// -
+				// First
+				// element,
+				// Primary
+				// Key
 				double[] feature_vector = chunk_features.getValue(); // feature vector per book
-																	 // chunk
+				// chunk
 				for (int j = 0; j < feature_vector.length; j++) {// loop over a vector
 
-					if (j != feature_vector.length - 1) {// for all Feature vector's -'j'th-element F1, F2..except last index
+					if (j != 20 && j != 21) {// for all Feature vector's -'j'th-element F1, F2..except last index
 						if (j == FRConstants.SENTENCE_L_14) {// normalize Avg. Sentence Length ,
-																// 14th element of array
+							// 14th element of array
 							fileWriter.append(String.format("%.4f", Math.round(((feature_vector[j]-aVG_avg_senten_len) / (max_avg_senten_len-min_avg_senten_len)) * dummy) / dummy)+ FRConstants.COMMA);
 							//fileWriter.append(String.format("%.4f", Math.round((feature_vector[j] / max_avg_senten_len) * dummy) / dummy)+ FRConstants.COMMA);
 							feature_vector[j] = Math.round((feature_vector[j] / max_avg_senten_len) * dummy) / dummy;
@@ -272,12 +300,16 @@ public class FeatureExtractorUtility {
 						if(j != FRConstants.NUM_CHARS_20 && j != FRConstants.SENTENCE_L_14){  // do not normalize others
 							fileWriter.append(String.format("%.4f", Math.round(feature_vector[j] * dummy) / dummy) + FRConstants.COMMA);
 						}
-					} else{// for last element, no comma!, but normalize, and then put '\n'
-						fileWriter.append(String.format("%.4f", Math.round(((feature_vector[j]-aVG_TTR)/ (max_TTR-min_TTR))* dummy) / dummy) + FRConstants.NEW_LINE);
-						//fileWriter.append(String.format("%.4f", Math.round((feature_vector[j]/ max_TTR)* dummy) / dummy) + FRConstants.NEW_LINE);
-						feature_vector[j] = Math.round((feature_vector[j] / max_TTR) * dummy) / dummy;
+
 					}
 				}
+				
+				//write no of charecters(writing at last for not consedering in similarity calculation)
+				fileWriter.append(String.format("%.4f", Math.round(feature_vector[20] * dummy) / dummy) + FRConstants.COMMA);
+				//write TTR(writing at last for not consedering in similarity calculation)
+				fileWriter.append(String.format("%.4f", Math.round(((feature_vector[21]-aVG_TTR)/ (max_TTR-min_TTR))* dummy) / dummy) + FRConstants.NEW_LINE);
+				//fileWriter.append(String.format("%.4f", Math.round((feature_vector[j]/ max_TTR)* dummy) / dummy) + FRConstants.NEW_LINE);
+				feature_vector[22] = Math.round((feature_vector[22] / max_TTR) * dummy) / dummy;
 				corpus_normalized.put(chunk_features.getKey(), feature_vector);
 			}
 			//now write the csv to ARFF format for weka

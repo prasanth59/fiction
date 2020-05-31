@@ -109,9 +109,9 @@ public interface FRConstants {
 
 	public static final String COMMA = ",";
 
-	public static final String FILE_HEADER = "bookId-chunkNo,F0,F1,F2,F3,F4,F5,F6,F7,F8,F9,F10,F11,F12,F13,F14,F15,F16,F17,F18,F19,F20,F21";
+	public static final String FILE_HEADER = "bookId-chunkNo,F0,F1,F2,F3,F4,F5,F6,F7,F8,F9,F10,F11,F12,F13,F14,F15,F16,F17,F18,F19,GF22,GF23,GF24,GF25,GF26,GF27,GF28,GF29,GF30,GF31,GF32,GF33,GF34,GF35,GF36,GF37,GF38,GF39,GF40,GF41,F20,F21";
 
-	public static final String FILE_HEADER_RES_CSV = "bookId_RowNum,F0,F1,F2,F3,F4,F5,F6,F7,F8,F9,F10,F11,F12,F13,F14,F15,F16,F17,F18,F19,F20,F21,Class";
+	public static final String FILE_HEADER_RES_CSV = "bookId_RowNum,F0,F1,F2,F3,F4,F5,F6,F7,F8,F9,F10,F11,F12,F13,F14,F15,F16,F17,F18,F19,F20,F21,GF22,GF23,GF24,GF25,GF26,GF27,GF28,GF29,GF30,GF31,GF32,GF33,GF34,GF35,GF36,GF37,GF38,GF39,GF40,GF41,Class";
 	
 	public static final String COORD_CONJUNCTION = "CC";
 
@@ -159,7 +159,7 @@ public interface FRConstants {
 	public static final String SIMI_EXCLUDE_TTR_NUMCHARS="EX";
 
 	public static final double SIMILARITY_CUTOFF = 0.70;
-	public static final int FEATURE_NUMBER = 22;
+	public static final int FEATURE_NUMBER = 42;
 	public static final int FEATURE_NUMBER_GLOBAL = 3;
 	public static final double FEATURE_WEIGHT_MORE = 0.85;
 	public static final double FEATURE_WEIGHT_LESS = 0.10;
@@ -228,6 +228,60 @@ public interface FRConstants {
 	public static final int FEMALE_PR_1 = 1;
 	
 	public static final int PARAGRAPH_COUNT_0 = 0;
+	
+	public static final int GENERE_FEATURE_22= 22;
+	
+	
+	public static final int GENERE_FEATURE_23= 23;
+	
+	public static final int GENERE_FEATURE_24= 24;
+	
+	public static final int GENERE_FEATURE_25= 25;
+	
+	public static final int GENERE_FEATURE_26= 26;
+	
+	public static final int GENERE_FEATURE_27= 27;
+	
+	public static final int GENERE_FEATURE_28= 28;
+	
+	public static final int GENERE_FEATURE_29= 29;
+	
+	
+	public static final int GENERE_FEATURE_30= 30;
+	
+	public static final int GENERE_FEATURE_31= 31;
+	
+	public static final int GENERE_FEATURE_32= 32;
+	
+	public static final int GENERE_FEATURE_33= 33;
+	
+	public static final int GENERE_FEATURE_34= 34;
+	
+	public static final int GENERE_FEATURE_35= 35;
+	
+	public static final int GENERE_FEATURE_36= 36;
+	
+	public static final int GENERE_FEATURE_37= 37;
+	
+	public static final int GENERE_FEATURE_38= 38;
+	
+	public static final int GENERE_FEATURE_39= 39;
+	
+	public static final int GENERE_FEATURE_40= 40;
+	
+	public static final int GENERE_FEATURE_41= 41;
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 
 }
