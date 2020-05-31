@@ -1,12 +1,15 @@
 package org.ovgu.de.fiction.feature.extraction;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -417,13 +420,13 @@ public class ChunkDetailsGenerator {
 
 			Chunk chunk = new Chunk();
 			chunk.setChunkNo(chunkNo);
-			// String chunkFileName = OUT_FOLDER_TOKENS + fileName + "-" +
-			// chunkNo + Constants.CHUNK_FILE;
-			// try (Writer contentWtr = new BufferedWriter(new
-			// OutputStreamWriter(new FileOutputStream(chunkFileName)));) {
-			// contentWtr.write(Chunk.getOriginalText(raw));
-			// chunk.setChunkFileLocation(chunkFileName);
-			// }
+			 String chunkFileName = OUT_FOLDER_TOKENS + fileName + "-" +
+			 chunkNo + FRConstants.CHUNK_FILE;
+			 try (Writer contentWtr = new BufferedWriter(new
+			 OutputStreamWriter(new FileOutputStream(chunkFileName)));) {
+			 contentWtr.write(Chunk.getOriginalText(raw));
+			 chunk.setChunkFileLocation(chunkFileName);
+			 }
 			System.out.println("numbr of sentences for sentiment  ="+randomSntnCount+" for chunknum ="+chunkNo+", and total sentc  ="+numOfSntncPerBook+" for book path "+path);
 			chunk.setTokenListWithoutStopwordAndPunctuation(stpwrdPuncRmvd);
 			Feature feature = feu.generateFeature(chunkNo, paragraphCount, sentenceCount, raw, null, stpwrdPuncRmvd, malePrpPosPronounCount,
