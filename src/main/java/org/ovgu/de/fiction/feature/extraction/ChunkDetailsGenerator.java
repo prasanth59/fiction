@@ -187,6 +187,7 @@ public class ChunkDetailsGenerator {
 		Annotation annotation = null;
 
 		WordAttributeGenerator wag = new WordAttributeGenerator();
+		quoteFeatureExtraction qfe = new quoteFeatureExtraction();
 		FeatureExtractorUtility feu = new FeatureExtractorUtility();
 		List<String> stopwords = Arrays.asList(FRGeneralUtils.getPropertyVal(FRConstants.STOPWORD_FICTION).split("\\|"));
 		Concept cncpt = wag.generateWordAttributes(Paths.get(path)); // this is
@@ -257,6 +258,8 @@ public class ChunkDetailsGenerator {
 		else
 			totalNumOfRandomSntnPerChunk = FRConstants.PERCTG_OF_SNTNC_FOR_SENTIM * ((numOfSntncPerBook)/(batchNumber));//10%_of_sentences_per_chunk
 			
+		List<Double> quoteFeatureListPerChunk = qfe.getquoteFeatureListPerChunk(path,batchNumber + 1);
+		
 		for (int batchCtr = 0; batchCtr <= batchNumber; batchCtr++) { //loop_over_number_of_chunks_of_a_book
 
 			chunkSize = batchCtr < batchNumber ? CHUNK_SIZE : remainder;
@@ -283,6 +286,7 @@ public class ChunkDetailsGenerator {
 			int properWordCount = 0;
 			int numOfSyllables = 0;
 			int randomSntnCount =0;
+			double quoteValue = (double) quoteFeatureListPerChunk.get(batchCtr);
 			StringBuffer sentenceSbf = new StringBuffer();
 
 			for (int index = 0; index < chunkSize; index++) {// loop_over_tokens_of_a_given_chunk
@@ -425,7 +429,7 @@ public class ChunkDetailsGenerator {
 			Feature feature = feu.generateFeature(chunkNo, paragraphCount, sentenceCount, raw, null, stpwrdPuncRmvd, malePrpPosPronounCount,
 					femalePrpPosPronounCount, personalPronounCount, possPronounCount, locativePrepositionCount, coordConj, commaCount,
 					periodCount, colonCount, semiColonCount, hyphenCount, intrjctnCount, convCount, wordCountPerSntncMap, senti_negetiv_cnt,
-					senti_positiv_cnt, senti_neutral_cnt, properWordCount, numOfSyllables);
+					senti_positiv_cnt, senti_neutral_cnt, properWordCount, numOfSyllables, quoteValue);
 			chunk.setFeature(feature);
 			chunksList.add(chunk);
 			chunkNo++;

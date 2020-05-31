@@ -34,6 +34,7 @@ public class Feature implements Serializable {
 	private double sentimentNegetiv;
 	private double sentimentPositiv;
 	private double fleshReadingScore;
+	private double quoteValue;
 
 	/**
 	 * @return the paragraphCount
@@ -308,6 +309,17 @@ public class Feature implements Serializable {
 
 	public void setFleshReadingScore(double fleshReadingScore) {
 		this.fleshReadingScore = fleshReadingScore;
+	}
+
+	
+	
+	
+	public double getQuoteValue() {
+		return quoteValue;
+	}
+
+	public void setQuoteValue(double quoteValue) {
+		this.quoteValue = quoteValue;
 	}
 
 	@Override

@@ -71,6 +71,7 @@ public class FeatureExtractorUtility {
 	 * @param wordCountList
 	 * @param numOfSyllables
 	 * @param properWordCount
+	 * @param quoteValue 
 	 * @return
 	 * 		The method generates the features for a chunk
 	 */
@@ -79,7 +80,7 @@ public class FeatureExtractorUtility {
 			double possPronounCount, double locativePrepositionCount, double coordConj, double commaCount, double periodCount,
 			double colonCount, double semiColonCount, double hyphenCount, double intrjctnCount, double quoteCount,
 			Map<Integer, Integer> wordCountList, int senti_negetiv, int senti_positiv, int senti_neutral, int properWordCount,
-			int numOfSyllables) {
+			int numOfSyllables, double quoteValue) {
 
 		Feature feature = new Feature();
 
@@ -118,6 +119,7 @@ public class FeatureExtractorUtility {
 			product += key * wordCountList.get(key);
 		}
 		feature.setAverageSentenceLength(new Double(product) / new Double(count));
+		feature.setQuoteValue(quoteValue);
 		return feature;
 	}
 
@@ -201,6 +203,7 @@ public class FeatureExtractorUtility {
 				feature_array[FRConstants.GENERE_FEATURE_40] = book.getNewFeature40();
 				feature_array[FRConstants.GENERE_FEATURE_41] = book.getNewFeature41();
 
+				feature_array[FRConstants.Quote_Value] = feature.getQuoteValue();
 				
 				
 				
@@ -285,19 +288,14 @@ public class FeatureExtractorUtility {
 				// chunk
 				for (int j = 0; j < feature_vector.length; j++) {// loop over a vector
 
-					if (j != 20 && j != 21) {// for all Feature vector's -'j'th-element F1, F2..except last index
+					if (j != FRConstants.NUM_CHARS_20 && j != FRConstants.TTR_21) {// for all Feature vector's -'j'th-element F1, F2..except last index
 						if (j == FRConstants.SENTENCE_L_14) {// normalize Avg. Sentence Length ,
 							// 14th element of array
 							fileWriter.append(String.format("%.4f", Math.round(((feature_vector[j]-aVG_avg_senten_len) / (max_avg_senten_len-min_avg_senten_len)) * dummy) / dummy)+ FRConstants.COMMA);
 							//fileWriter.append(String.format("%.4f", Math.round((feature_vector[j] / max_avg_senten_len) * dummy) / dummy)+ FRConstants.COMMA);
 							feature_vector[j] = Math.round((feature_vector[j] / max_avg_senten_len) * dummy) / dummy;
 						}
-						if(j == FRConstants.NUM_CHARS_20){//normlize
-							fileWriter.append(String.format("%.4f", Math.round(((feature_vector[j]-aVG_NUM_of_CHARS) / (max_NUM_of_CHARS-min_NUM_of_CHARS)) * dummy) / dummy)	+ FRConstants.COMMA);
-							//fileWriter.append(String.format("%.4f", Math.round((feature_vector[j] / max_NUM_of_CHARS) * dummy) / dummy)	+ FRConstants.COMMA);
-							feature_vector[j] = Math.round((feature_vector[j] / max_NUM_of_CHARS) * dummy) / dummy;
-						}
-						if(j != FRConstants.NUM_CHARS_20 && j != FRConstants.SENTENCE_L_14){  // do not normalize others
+						if(j != FRConstants.SENTENCE_L_14){  // do not normalize others
 							fileWriter.append(String.format("%.4f", Math.round(feature_vector[j] * dummy) / dummy) + FRConstants.COMMA);
 						}
 
@@ -305,11 +303,12 @@ public class FeatureExtractorUtility {
 				}
 				
 				//write no of charecters(writing at last for not consedering in similarity calculation)
-				fileWriter.append(String.format("%.4f", Math.round(feature_vector[20] * dummy) / dummy) + FRConstants.COMMA);
+				fileWriter.append(String.format("%.4f", Math.round(((feature_vector[FRConstants.NUM_CHARS_20]-aVG_NUM_of_CHARS) / (max_NUM_of_CHARS-min_NUM_of_CHARS)) * dummy) / dummy)	+ FRConstants.COMMA);
+				//fileWriter.append(String.format("%.4f", Math.round((feature_vector[j] / max_NUM_of_CHARS) * dummy) / dummy)	+ FRConstants.COMMA);
+				feature_vector[FRConstants.NUM_CHARS_20] = Math.round((feature_vector[FRConstants.NUM_CHARS_20] / max_NUM_of_CHARS) * dummy) / dummy;
 				//write TTR(writing at last for not consedering in similarity calculation)
-				fileWriter.append(String.format("%.4f", Math.round(((feature_vector[21]-aVG_TTR)/ (max_TTR-min_TTR))* dummy) / dummy) + FRConstants.NEW_LINE);
-				//fileWriter.append(String.format("%.4f", Math.round((feature_vector[j]/ max_TTR)* dummy) / dummy) + FRConstants.NEW_LINE);
-				feature_vector[22] = Math.round((feature_vector[22] / max_TTR) * dummy) / dummy;
+				fileWriter.append(String.format("%.4f", Math.round(((feature_vector[FRConstants.TTR_21]-aVG_TTR)/ (max_TTR-min_TTR))* dummy) / dummy) + FRConstants.NEW_LINE);
+
 				corpus_normalized.put(chunk_features.getKey(), feature_vector);
 			}
 			//now write the csv to ARFF format for weka

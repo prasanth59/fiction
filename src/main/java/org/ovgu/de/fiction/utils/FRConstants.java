@@ -109,9 +109,9 @@ public interface FRConstants {
 
 	public static final String COMMA = ",";
 
-	public static final String FILE_HEADER = "bookId-chunkNo,F0,F1,F2,F3,F4,F5,F6,F7,F8,F9,F10,F11,F12,F13,F14,F15,F16,F17,F18,F19,GF22,GF23,GF24,GF25,GF26,GF27,GF28,GF29,GF30,GF31,GF32,GF33,GF34,GF35,GF36,GF37,GF38,GF39,GF40,GF41,F20,F21";
+	public static final String FILE_HEADER = "bookId-chunkNo,F0,F1,F2,F3,F4,F5,F6,F7,F8,F9,F10,F11,F12,F13,F14,F15,F16,F17,F18,F19,GF22,GF23,GF24,GF25,GF26,GF27,GF28,GF29,GF30,GF31,GF32,GF33,GF34,GF35,GF36,GF37,GF38,GF39,GF40,GF41,F42,F20,F21";
 
-	public static final String FILE_HEADER_RES_CSV = "bookId_RowNum,F0,F1,F2,F3,F4,F5,F6,F7,F8,F9,F10,F11,F12,F13,F14,F15,F16,F17,F18,F19,F20,F21,GF22,GF23,GF24,GF25,GF26,GF27,GF28,GF29,GF30,GF31,GF32,GF33,GF34,GF35,GF36,GF37,GF38,GF39,GF40,GF41,Class";
+	public static final String FILE_HEADER_RES_CSV = "bookId_RowNum,F0,F1,F2,F3,F4,F5,F6,F7,F8,F9,F10,F11,F12,F13,F14,F15,F16,F17,F18,F19,GF22,GF23,GF24,GF25,GF26,GF27,GF28,GF29,GF30,GF31,GF32,GF33,GF34,GF35,GF36,GF37,GF38,GF39,GF40,GF41,F42,F20,F21,Class";
 	
 	public static final String COORD_CONJUNCTION = "CC";
 
@@ -159,7 +159,7 @@ public interface FRConstants {
 	public static final String SIMI_EXCLUDE_TTR_NUMCHARS="EX";
 
 	public static final double SIMILARITY_CUTOFF = 0.70;
-	public static final int FEATURE_NUMBER = 42;
+	public static final int FEATURE_NUMBER = 43;
 	public static final int FEATURE_NUMBER_GLOBAL = 3;
 	public static final double FEATURE_WEIGHT_MORE = 0.85;
 	public static final double FEATURE_WEIGHT_LESS = 0.10;
@@ -271,8 +271,7 @@ public interface FRConstants {
 	
 	public static final int GENERE_FEATURE_41= 41;
 	
-
-	
+	public static final int Quote_Value= 42;
 	
 	
 	
