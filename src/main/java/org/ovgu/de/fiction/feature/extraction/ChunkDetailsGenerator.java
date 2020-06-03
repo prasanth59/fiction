@@ -6,7 +6,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -81,35 +83,7 @@ public class ChunkDetailsGenerator {
 		List<BookDetails> books = new ArrayList<>();
 		FeatureExtractorUtility feu = new FeatureExtractorUtility();
 		
-		// reading the generated csv and writing it to map
-		
-		
-		
-		HashMap<String,List> genereFeaturemap = new HashMap<String, List>();
-		String line = ""; 
-		String genereFeaturecsvPath = "/Users/bhargavmuktevi/Desktop/Features.csv";
-		try   
-		{  
-			BufferedReader br = new BufferedReader(new FileReader(genereFeaturecsvPath));  
-			while ((line = br.readLine()) != null)   
-			{  
-				while ((line = br.readLine()) != null) {                  
-
-					String[] newFeature = line.split(","); 
-					List<Float> featureList = new ArrayList<Float>();
-					for (int i = 1; i < newFeature.length ; i++) {
-						featureList.add(Float.valueOf(newFeature[i]));
-					}  
-					genereFeaturemap.put(newFeature[0], featureList);
-				} 
-			}
-		}
-		catch (IOException e)   
-		{  
-			e.printStackTrace();  
-		} 
-		
-
+	
 		// following loop runs, over path of each book
 		FRFileOperationUtils.getFileNames(CONTENT_EXTRCT_FOLDER).stream().forEach(file -> {
 			String fileName = file.getFileName().toString().replace(FRConstants.CONTENT_FILE, FRConstants.NONE);
@@ -129,38 +103,54 @@ public class ChunkDetailsGenerator {
 				book.setAverageTTR(feu.getAverageTTR(getEqualChunksFromFile(getTokensFromAllChunks(book.getChunks()))));
 				book.setNumOfChars(NUM_OF_CHARS_PER_BOOK == 0 ? 1 : NUM_OF_CHARS_PER_BOOK);
 				
-				
-				//setting genere features to book level
-				
-				
+				// extracting features from python generated csv feature file
+				HashMap<Integer,Double> pythonFeaturesMap = new HashMap<Integer, Double>();
+				String pythonIntegratedCsvPath = "/Users/bhargavmuktevi/Desktop/SIMFIC Project/pythonIntegration/features.csv";
+				String line = ""; 
+				try   
+				{  
+					BufferedReader br = new BufferedReader(new FileReader(pythonIntegratedCsvPath));  
 
-				List<Float> bookGenereFeature = genereFeaturemap.get(fileName);
-
+					while ((line = br.readLine()) != null) {                  
+						String[] pythonFeatures = line.split(","); 
+						for (int i = 0; i < pythonFeatures.length ; i++) {
+							pythonFeaturesMap.put(i, Double.parseDouble(pythonFeatures[i]));
+						}  
+					} 
+				}
+				catch (IOException e)   
+				{  
+					e.printStackTrace();  
+				} 
 				
 				
-				book.setNewFeature22(bookGenereFeature.get(0));
-				book.setNewFeature23(bookGenereFeature.get(1));
-				book.setNewFeature24(bookGenereFeature.get(2));
-				book.setNewFeature25(bookGenereFeature.get(3));
-				book.setNewFeature26(bookGenereFeature.get(4));
-				book.setNewFeature27(bookGenereFeature.get(5));
-				book.setNewFeature28(bookGenereFeature.get(6));
-				book.setNewFeature29(bookGenereFeature.get(7));
-				book.setNewFeature30(bookGenereFeature.get(8));
-				book.setNewFeature31(bookGenereFeature.get(9));
-				book.setNewFeature32(bookGenereFeature.get(10));
-				book.setNewFeature33(bookGenereFeature.get(11));
-				book.setNewFeature34(bookGenereFeature.get(12));
-				book.setNewFeature35(bookGenereFeature.get(13));
-				book.setNewFeature36(bookGenereFeature.get(14));
-				book.setNewFeature37(bookGenereFeature.get(15));
-				book.setNewFeature38(bookGenereFeature.get(16));
-				book.setNewFeature39(bookGenereFeature.get(17));
-				book.setNewFeature40(bookGenereFeature.get(18));
-				book.setNewFeature41(bookGenereFeature.get(19));
-
-
-
+				//setting genere features 
+				book.setNewFeature22(pythonFeaturesMap.get(0));
+				book.setNewFeature23(pythonFeaturesMap.get(1));
+				book.setNewFeature24(pythonFeaturesMap.get(2));
+				book.setNewFeature25(pythonFeaturesMap.get(3));
+				book.setNewFeature26(pythonFeaturesMap.get(4));
+				book.setNewFeature27(pythonFeaturesMap.get(5));
+				book.setNewFeature28(pythonFeaturesMap.get(6));
+				book.setNewFeature29(pythonFeaturesMap.get(7));
+				book.setNewFeature30(pythonFeaturesMap.get(8));
+				book.setNewFeature31(pythonFeaturesMap.get(9));
+				book.setNewFeature32(pythonFeaturesMap.get(10));
+				book.setNewFeature33(pythonFeaturesMap.get(11));
+				book.setNewFeature34(pythonFeaturesMap.get(12));
+				book.setNewFeature35(pythonFeaturesMap.get(13));
+				book.setNewFeature36(pythonFeaturesMap.get(14));
+				book.setNewFeature37(pythonFeaturesMap.get(15));
+				book.setNewFeature38(pythonFeaturesMap.get(16));
+				book.setNewFeature39(pythonFeaturesMap.get(17));
+				book.setNewFeature40(pythonFeaturesMap.get(18));
+				book.setNewFeature41(pythonFeaturesMap.get(19));
+				//setting main character feature
+				book.setNewFeature43(pythonFeaturesMap.get(20));
+				//setting start to end features
+				book.setNewFeature44(pythonFeaturesMap.get(21));
+				book.setNewFeature45(pythonFeaturesMap.get(22));
+				book.setNewFeature46(pythonFeaturesMap.get(23));
 				
 				books.add(book);
 
@@ -191,8 +181,9 @@ public class ChunkDetailsGenerator {
 	 *            to book location
 	 * @return : List of Chunks, Chunk has a feature vector object
 	 * @throws IOException
+	 * @throws InterruptedException 
 	 */
-	public List<Chunk> getChunksFromFile(String path) throws IOException {
+	public List<Chunk> getChunksFromFile(String path) throws IOException, InterruptedException {
 
 		int batchNumber;
 		List<Chunk> chunksList = new ArrayList<>();
@@ -225,6 +216,16 @@ public class ChunkDetailsGenerator {
 		ParagraphPredicate filter = new ParagraphPredicate();
 		List<Word> copy = new ArrayList<>(wordList);
 		copy.removeIf(filter);
+		
+//		Calculate Feature to encode start and end of book
+		List<String>wordLemma= new  ArrayList<>();
+		wordLemma.add(fileName);
+		for (Word item : copy) {
+			wordLemma.add(item.getLemma());
+		}
+// Function to call python script to encode start and end of book	
+		//encode_book(wordLemma,fileName,path);
+		
 		int length = copy.size();
 
 		int remainder = 0;
@@ -537,5 +538,37 @@ public class ChunkDetailsGenerator {
 		return tokens;
 
 	}
+	
+	private void encode_book(List<String>wordLemma, String book_id,String filePath) throws IOException, InterruptedException {
+
+		File file = new File("/Users/bhargavmuktevi/Desktop/SIMFIC Project/pythonIntegration/output.txt");
+		if (file.exists() == true) {
+			System.out.println("deleted file");
+			file.delete();
+		}
+		FileOutputStream fo = new FileOutputStream(file);
+		PrintWriter pw = new PrintWriter(fo);
+
+		for (String elem : wordLemma) {
+			pw.println(elem);
+		}
+		pw.close();
+		fo.close();
+//		Code to execute python script with passed parameters
+		String[] cmd = { "py","-W ignore", "/Users/bhargavmuktevi/Desktop/SIMFIC Project/pythonIntegration/Feature3.py", "/Users/bhargavmuktevi/Desktop/SIMFIC Project/pythonIntegration/output.txt", filePath,"/Users/bhargavmuktevi/Desktop/SIMFIC Project/pythonIntegration/features.csv"};
+		Process p = Runtime.getRuntime().exec(cmd);
+
+		String s = null;
+		BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+		while ((s = in.readLine()) != null) {
+			System.out.println(s);
+		}
+		p.waitFor();
+		p.destroy();
+
+	}
+	
+	
+	
 
 }

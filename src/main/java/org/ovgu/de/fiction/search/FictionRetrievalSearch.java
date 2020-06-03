@@ -4,11 +4,14 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.ovgu.de.fiction.model.TopKResults;
 import org.ovgu.de.fiction.utils.FRConstants;
@@ -23,11 +26,12 @@ public class FictionRetrievalSearch {
 			String TTR_CHARS,int topKRes,String similarity) throws IOException {
 		Map<String, Map<String, double[]>> books = getChunkFeatureMapForAllBooks(featureCsvFile);
 
-		SortedMap<Double, String> results_topK = compareQueryBookWithCorpus(qryBookNum, books, PENALISE, ROLLUP, TTR_CHARS,topKRes,similarity);
-		
+		List<SortedMap<Double, String>> results_topK = compareQueryBookWithCorpus(qryBookNum, books, PENALISE, ROLLUP, TTR_CHARS,topKRes,similarity);
+
 		TopKResults topK = new TopKResults();
 		topK.setBooks(books);
-		topK.setResults_topK(results_topK);
+		topK.setResults_topK(results_topK.get(0));
+		topK.setSimilarities(results_topK.get(1));
 		return topK;
 	}
 
@@ -52,7 +56,7 @@ public class FictionRetrievalSearch {
 		return books;
 	}
 
-	private static SortedMap<Double, String> compareQueryBookWithCorpus(String qryBookId, Map<String, Map<String, double[]>> books, 
+	private static List<SortedMap<Double, String>> compareQueryBookWithCorpus(String qryBookId, Map<String, Map<String, double[]>> books, 
 			String PENALISE, String ROLLUP, String TTR_CHARS,int topKRes, String similarity)
 			throws IOException {
 		// Step: Send the query book chunk wise and find relevance rank with corpus
@@ -93,6 +97,7 @@ public class FictionRetrievalSearch {
 		// loop over the staging results to create a final weighted result map
 		SortedMap<Double, String> sorted_results_wo_TTR = new TreeMap<Double, String>(Collections.reverseOrder());// final DS to hold sorted ranks
 		SortedMap<Double, String> sorted_results_mit_TTR = new TreeMap<Double, String>(Collections.reverseOrder());
+		SortedMap<Double, String> sorted_results_wo_TTR_backup = new TreeMap<Double, String>(Collections.reverseOrder());
 		
 		// Multimap<Double, String> multimap_results = ArrayListMultimap.create();//useful to
 		// combine many values for same similarity weight
@@ -160,12 +165,20 @@ public class FictionRetrievalSearch {
 		}
 		//System.out.println("final Similarity results = " + sorted_results);
 		
+		
+		
+		System.out.println("our values");
+		
+		sorted_results_wo_TTR_backup.putAll(sorted_results_wo_TTR);
+
+		
+		System.out.println("sorted_results_wo_TTR");
 		if(TTR_CHARS.equals(FRConstants.SIMI_EXCLUDE_TTR_NUMCHARS)){
 			
 			System.out.println("");
 			System.out.println("For Chunk based Similarity, QBE Book = " + qryBookId + " printing top " + FRConstants.TOP_K_RESULTS + " results");
 			sorted_results_wo_TTR = printTopKResults(sorted_results_wo_TTR);
-			return sorted_results_wo_TTR;
+			return Arrays.asList(sorted_results_wo_TTR,sorted_results_wo_TTR_backup);
 		
 		}
 		else{//i.e. include TTR and Num of characters
@@ -210,7 +223,7 @@ public class FictionRetrievalSearch {
 			System.out.println("");
 			System.out.println("For Global Feature based Similarity, QBE Book = " + qryBookId + " printing top " + FRConstants.TOP_K_RESULTS + " results");
 			sorted_results_mit_TTR = printTopKResults(sorted_results_mit_TTR);
-			return sorted_results_mit_TTR;
+			return Arrays.asList(sorted_results_mit_TTR,sorted_results_wo_TTR_backup);
 			
 		}
 		

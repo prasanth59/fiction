@@ -174,14 +174,14 @@ public class FRSimilarityUtils {
 		}
 
 		// get top K results from sorted Results Map
-		int topkCount = 0;
+		//int topkCount = 0;
 		for (Map.Entry<Double, String> topRes_staging : results.entrySet()) {
-			if (topkCount < topkRequested)
-				topK_results.put(topRes_staging.getKey(), topRes_staging.getValue());
-			else
-				break;
+			//if (topkCount < topkRequested)
+			topK_results.put(topRes_staging.getKey(), topRes_staging.getValue());
+			//else
+			//break;
 
-			topkCount++;
+			//topkCount++;
 		}
 		return topK_results;
 

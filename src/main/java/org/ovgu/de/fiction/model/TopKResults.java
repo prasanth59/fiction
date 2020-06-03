@@ -14,6 +14,10 @@ public class TopKResults {
 	 */
 	public Map<String, Map<String, double[]>> books;
 	SortedMap<Double, String> results_topK;
+	SortedMap<Double, String> similarities;
+	
+	
+	
 	
 	/**
 	 * Book Name, Book Global Feature Vector, Book Class label, for results interpretation
@@ -65,6 +69,18 @@ public class TopKResults {
 	public void setBookGlobalFeatureVector(double[] bookGlobalFeatureVector) {
 		this.bookGlobalFeatureVector = bookGlobalFeatureVector;
 	}
+
+	public SortedMap<Double, String> getSimilarities() {
+		return similarities;
+	}
+
+	public void setSimilarities(SortedMap<Double, String> similarities) {
+		this.similarities = similarities;
+	}
+
+	
+
+	
 	
 	
 

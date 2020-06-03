@@ -205,9 +205,10 @@ public class FeatureExtractorUtility {
 
 				feature_array[FRConstants.Quote_Value] = feature.getQuoteValue();
 				
-				
-				
-				
+				feature_array[FRConstants.MAINCHARACTER_FEATURE_43] = book.getNewFeature43();
+				feature_array[FRConstants.START_MID_FEATURE_44] = book.getNewFeature44();
+				feature_array[FRConstants.MID_END_FEATURE_45] = book.getNewFeature45();
+				feature_array[FRConstants.START_END_FEATURE_46] = book.getNewFeature46();
 				
 				feature_array[FRConstants.PARAGRAPH_COUNT_0] = feature.getParagraphCount();
 				feature_array[FRConstants.FEMALE_PR_1] = feature.getMalePrpPosPronounRatio();

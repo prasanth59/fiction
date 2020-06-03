@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.SortedMap;
+import java.util.stream.Collectors;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.stat.inference.ChiSquareTest;
@@ -56,7 +57,7 @@ public class InterpretSearchResults {
 		SortedMap<Double, String> results_topK = topKResults.getResults_topK();
 		
 		Map<Integer , TopKResults> searched_result_bins = createBinsModified(books,results_topK); // createBins(books,results_topK);
-		writeBinsToFiles(searched_result_bins);
+		writeBinsToFiles(searched_result_bins,topKResults.getSimilarities());
 		Map<String,Map<String,String>> stats = getStatistics(FRGeneralUtils.getPropertyVal("file.results.arff"));
 		//rankFeatures(FRGeneralUtils.getPropertyVal("file.results.arff"));
 		return stats;
@@ -185,12 +186,21 @@ public class InterpretSearchResults {
 	}
 	
 	/**
+	 * @param sortedMap 
 	 * @about This method will simply write the instance-feature space to arff files for machine learning
 	 */
-	private void writeBinsToFiles(Map<Integer, TopKResults> searched_result_bins) throws IOException {
+	private void writeBinsToFiles(Map<Integer, TopKResults> searched_result_bins, SortedMap<Double, String> similaritiesMap) throws IOException {
 	
 		double dummy = 10000.0000;
 		String RESULTS_CSV_FILE = FRGeneralUtils.getPropertyVal("file.results.csv");
+		
+
+		Map<Object, Object> mapInversed = similaritiesMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+		
+		
+		
+		
+		
 		String RESULTS_ARFF_FILE = FRGeneralUtils.getPropertyVal("file.results.arff");
 		try (FileWriter fileWriter = new FileWriter(RESULTS_CSV_FILE);) {
 
@@ -200,12 +210,13 @@ public class InterpretSearchResults {
 			for (Map.Entry<Integer, TopKResults> book_features : searched_result_bins.entrySet()) {
 				TopKResults topResults = book_features.getValue();
 				int rank = book_features.getKey();
+				Double similarity = (Double) mapInversed.get(topResults.getBookName());
 				fileWriter.append(topResults.getBookName()+"-"+String.valueOf(rank) + FRConstants.COMMA); //bookID-row_num
 				double[] book_vector = topResults.getBookGlobalFeatureVector();
 				  for(int k=0;k<book_vector.length;k++){
 					  fileWriter.append(String.format("%.4f", Math.round((book_vector[k])* dummy) / dummy) + FRConstants.COMMA);
 					  }
-				fileWriter.append(String.format("%.4f", Math.round((topResults.getBookClassLabel())* dummy) / dummy) + FRConstants.NEW_LINE);
+				fileWriter.append(String.format("%.4f", Math.round((similarity)* dummy) / dummy) + FRConstants.NEW_LINE);
 				  }
 			}
 		
