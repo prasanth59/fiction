@@ -1,6 +1,7 @@
 package org.ovgu.de.fiction.feature.extraction;
 
 import java.io.BufferedReader;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -25,6 +26,7 @@ import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.util.CoreMap;
+import me.xdrop.fuzzywuzzy.FuzzySearch;
 
 /**
  * @author Suhita, Sayantan
@@ -119,16 +121,16 @@ public class WordAttributeGenerator {
 		Map<String,Integer> characterCloneMap = feu.getUniqueCharacterMap(charMap);
 		cncpt.setCharacterMap(characterCloneMap);
 		
+		// code for getting main character.
 		LinkedHashMap<String, Integer> sortedMap = new LinkedHashMap<>();
-		characterCloneMap.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())) .forEachOrdered(x -> sortedMap.put(x.getKey(), x.getValue()));
-		
+		charMap.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())) .forEachOrdered(x -> sortedMap.put(x.getKey(), x.getValue()));
 		ArrayList<Integer>  characterCountList = new ArrayList<Integer>(sortedMap.values());
 		ArrayList<String>  characternameList = new ArrayList<String>(sortedMap.keySet());
-		System.out.println(characterCountList);
 		System.out.println(characternameList);
+		System.out.println(characterCountList);
+		cncpt.setCharacterNameList(characternameList);
+		cncpt.setCharacterCountList(characterCountList);
 		
-		//Collections.sort(characterCountList, Collections.reverseOrder()); 
-
 		cncpt.setNumOfSentencesPerBook(numOfSentences);
 		StanfordPipeline.resetPipeline();
 		return cncpt;

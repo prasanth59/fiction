@@ -245,7 +245,7 @@ public class ChunkDetailsGenerator {
 			wordLemma.add(item.getLemma());
 		}
 // Function to call python script to encode start and end of book	
-		//encode_book(wordLemma,fileName,path);
+		encode_book(wordLemma,fileName,path,cncpt.getCharacterNameList(),cncpt.getCharacterCountList());
 		
 		int length = copy.size();
 
@@ -681,21 +681,45 @@ public class ChunkDetailsGenerator {
 
 	}
 	
-	private void encode_book(List<String>wordLemma, String book_id,String filePath) throws IOException, InterruptedException {
+	private void encode_book(List<String>wordLemma, String book_id,String filePath, ArrayList<String> characterNameList, ArrayList<Integer> characterCountList) throws IOException, InterruptedException {
 
 		File file = new File("/Users/bhargavmuktevi/Desktop/SIMFIC Project/pythonIntegration/output.txt");
 		if (file.exists() == true) {
 			System.out.println("deleted file");
 			file.delete();
 		}
+		
+		
+		StringBuilder sbCharName = new StringBuilder();
+		for (String n : characterNameList)
+		{
+			sbCharName.append(n);
+			sbCharName.append("|");
+		}
+
+		StringBuilder sbCharCount = new StringBuilder();
+		for (Integer c : characterCountList)
+		{
+			sbCharCount.append(c);
+			sbCharCount.append("|");
+		}
+		
+		StringBuilder sbWordLemma = new StringBuilder();
+		for (String w : wordLemma)
+		{
+			sbWordLemma.append(w);
+			sbWordLemma.append("|");
+		}
+		
 		FileOutputStream fo = new FileOutputStream(file);
 		PrintWriter pw = new PrintWriter(fo);
-
-		for (String elem : wordLemma) {
-			pw.println(elem);
-		}
+		pw.println(sbCharName);
+		pw.println(sbCharCount);
+		pw.println(sbWordLemma);
 		pw.close();
 		fo.close();
+		
+		
 //		Code to execute python script with passed parameters
 		String[] cmd = { "py","-W ignore", "/Users/bhargavmuktevi/Desktop/SIMFIC Project/pythonIntegration/Feature3.py", "/Users/bhargavmuktevi/Desktop/SIMFIC Project/pythonIntegration/output.txt", filePath,"/Users/bhargavmuktevi/Desktop/SIMFIC Project/pythonIntegration/features.csv"};
 		Process p = Runtime.getRuntime().exec(cmd);
