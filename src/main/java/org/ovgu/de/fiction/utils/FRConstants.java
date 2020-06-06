@@ -18,6 +18,7 @@ public interface FRConstants {
 	public static final String CHUNK_SIZE_FOR_TTR = "chunk.ttr.size";
 	public static final String OUT_FOLDER_TOKENS = "folder.out.chunks";
 	public static final String STOPWORD_FICTION = "stopword.fiction";
+	public static final String STOPWORD_GERMAN = "stopword.german";
 
 	/* regex */
 	public static final String REGEX_ALL_PUNCTUATION = "[\\s\"\\.\\,\\?\\!\\:\\;\\'-]";
@@ -37,6 +38,8 @@ public interface FRConstants {
 
 	public static final String STNFRD_SENTI_ANNOTATIONS = "tokenize,ssplit,pos,depparse,parse,sentiment";
 
+	public static final String GERMAN_ANNOTATIONS = "tokenize,ssplit,pos,ner";
+	
 	public static final String STNFRD_ANNOTATOR = "annotators";
 
 	/* Preprocessing related constants */
@@ -283,11 +286,38 @@ public interface FRConstants {
 	
 	
 	
+	public static final String ENGLISH = "en";
+	
+	public static final String GERMAN = "de";
 	
 	
 	
+	// For german text
 	
 	
+	public static final String ER = "er";
+			
+	public static final String SIE = "sie";
+	
+	public static final String IHR = "ihr";
+	
+	public static final String SEIN = "sein";
+	
+	public static final String GERMAN_POSSESIV_P = "PRON";
+	
+	public static final String GERMAN_PREPOSITION = "ADP";
+	
+	public static final String GERMAN_INTERJECTION = "ITJ";
+	
+	public static final String COORD_CONJUNCTION_GERMAN = "CCONJ";
+	
+	public static final String QUOTES_GERMAN = "PUNCT"; 
+	
+	public static final String PERSONAL_P_GERMAN = "PRON";
+	
+	public static final String POSSESIV_P_GERMAN = "DET";
+	
+
 	
 	
 

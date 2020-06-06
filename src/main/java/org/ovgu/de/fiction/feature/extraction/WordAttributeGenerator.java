@@ -1,9 +1,16 @@
 package org.ovgu.de.fiction.feature.extraction;
 
+import java.io.BufferedReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,15 +40,22 @@ public class WordAttributeGenerator {
 	 * @return = List of "Word" objects, each object has original token, POS tag, lemma, NER as
 	 *         elements
 	 * @author Suhita, Modified by Sayantan for # of characters
+	 * @param language 
+	 * @throws InterruptedException 
+	 * @throws IOException 
 	 */
-	public Concept generateWordAttributes(Path path) {
+	public Concept generateWordAttributes(Path path, String language) throws IOException, InterruptedException {
 
 		FeatureExtractorUtility feu = new FeatureExtractorUtility();
 		Concept cncpt = new Concept();
 		Annotation document = new Annotation(FRFileOperationUtils.readFile(path.toString()));
-
-		StanfordPipeline.getPipeline(null).annotate(document);
+		if (language.equals(FRConstants.ENGLISH)) {
+			StanfordPipeline.getPipeline(null).annotate(document);
+		}else if (language.equals(FRConstants.GERMAN)){
+			StanfordPipeline.getGermanPipeline(null).annotate(document);
+		}
 		List<CoreMap> sentences = document.get(CoreAnnotations.SentencesAnnotation.class);
+		System.out.println(sentences); 
 		List<Word> tokenList = new ArrayList<>();
 		Map<String, Integer> charMap = new HashMap<>(); // a new object per new
 														 // book // Book
@@ -59,12 +73,13 @@ public class WordAttributeGenerator {
 																						// token
 																						// of
 																						// a
-																						// sentence
+		
 
 				String original = cl.get(CoreAnnotations.OriginalTextAnnotation.class);
 				String pos = cl.get(CoreAnnotations.PartOfSpeechAnnotation.class);
 				String ner = cl.get(CoreAnnotations.NamedEntityTagAnnotation.class);
-				String lemma = cl.get(CoreAnnotations.LemmaAnnotation.class).toLowerCase();
+				String lemma =  language.equals(FRConstants.ENGLISH) ? cl.get(CoreAnnotations.LemmaAnnotation.class).toLowerCase(): original;
+			
 				/*
 				 * logic 2: check if ner is "P", then further check next 2 element in sentence , ex.
 				 * Tom Cruise, Mr. Tom Cruise if yes, then concatenate all two or three tokens i.e.
@@ -79,7 +94,7 @@ public class WordAttributeGenerator {
 				} else if (!ner.equals(FRConstants.NER_CHARACTER) && charName.length() != 0) {
 
 					// calculate for character
-					numOfSyllables = FRGeneralUtils.countSyllables(charName.toString().toLowerCase());
+					numOfSyllables = FRGeneralUtils.countSyllables(charName.toString().toLowerCase(), language);
 					addToTokenList(tokenList, charName.toString(), NNP, FRConstants.NER_CHARACTER, charName.toString(), numOfSyllables);
 
 					String charNameStr = charName.toString().replaceAll(FRConstants.REGEX_ALL_PUNCTUATION, " ")
@@ -88,23 +103,38 @@ public class WordAttributeGenerator {
 					charMap.put(charNameStr, count + 1);
 
 					// add the next word after character
-					addToTokenList(tokenList, original, pos, ner, lemma, FRGeneralUtils.countSyllables(original.toLowerCase()));
+					addToTokenList(tokenList, original, pos, ner, lemma.toString(), FRGeneralUtils.countSyllables(original.toLowerCase(),language));
 					// rest the string buffer
 					charName = new StringBuffer();
 
 				} else {
-					addToTokenList(tokenList, original, pos, ner, lemma, FRGeneralUtils.countSyllables(original.toLowerCase()));
+					addToTokenList(tokenList, original, pos, ner, lemma.toString(), FRGeneralUtils.countSyllables(original.toLowerCase(),language));
 				}
 
 			}
 		}
 		cncpt.setWords(tokenList);
-		cncpt.setCharacterMap(feu.getUniqueCharacterMap(charMap));
+		
+		
+		Map<String,Integer> characterCloneMap = feu.getUniqueCharacterMap(charMap);
+		cncpt.setCharacterMap(characterCloneMap);
+		
+		LinkedHashMap<String, Integer> sortedMap = new LinkedHashMap<>();
+		characterCloneMap.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())) .forEachOrdered(x -> sortedMap.put(x.getKey(), x.getValue()));
+		
+		ArrayList<Integer>  characterCountList = new ArrayList<Integer>(sortedMap.values());
+		ArrayList<String>  characternameList = new ArrayList<String>(sortedMap.keySet());
+		System.out.println(characterCountList);
+		System.out.println(characternameList);
+		
+		//Collections.sort(characterCountList, Collections.reverseOrder()); 
+
 		cncpt.setNumOfSentencesPerBook(numOfSentences);
 		StanfordPipeline.resetPipeline();
 		return cncpt;
 	}
 
+	
 	public void addToTokenList(List<Word> tokenList, String original, String pos, String ner, String lemma, int numOfSyllbles) {
 		if (lemma.matches("^'.*[a-zA-Z]$")) { // 's o'clock 'em
 			StringBuffer sbf = new StringBuffer();
@@ -117,5 +147,23 @@ public class WordAttributeGenerator {
 			tokenList.add(new Word(original, lemma, pos, ner, numOfSyllbles));
 		}
 	}
+	
+	
+	private String getlemmaForGermanWord(String original, String pos) throws IOException, InterruptedException {
+		String[] cmd = { "py","-W ignore", "/Users/bhargavmuktevi/Desktop/SIMFIC Project/pythonIntegration/Feature3.py", original, pos};
+		Process p = Runtime.getRuntime().exec(cmd);
+
+		String s = null;
+		BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+		while ((s = in.readLine()) != null) {
+			System.out.println(s);
+		}
+		p.waitFor();
+		p.destroy();
+		return s;
+	}
+	
+	
+	
 
 }

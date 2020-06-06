@@ -210,7 +210,7 @@ public class InterpretSearchResults {
 			for (Map.Entry<Integer, TopKResults> book_features : searched_result_bins.entrySet()) {
 				TopKResults topResults = book_features.getValue();
 				int rank = book_features.getKey();
-				Double similarity = (Double) mapInversed.get(topResults.getBookName());
+				Double similarity = ((Double) mapInversed.get(topResults.getBookName()) == null) ? 1 : (Double) mapInversed.get(topResults.getBookName());
 				fileWriter.append(topResults.getBookName()+"-"+String.valueOf(rank) + FRConstants.COMMA); //bookID-row_num
 				double[] book_vector = topResults.getBookGlobalFeatureVector();
 				  for(int k=0;k<book_vector.length;k++){

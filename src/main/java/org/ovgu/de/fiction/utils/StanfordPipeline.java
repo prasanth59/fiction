@@ -20,18 +20,43 @@ public class StanfordPipeline {
 			return pipeline;
 
 		Properties properties = new Properties();
-		if (annotations == null)
+		if (annotations == null) 
 			properties.put(FRConstants.STNFRD_ANNOTATOR, FRConstants.STNFRD_LEMMA_ANNOTATIONS);
-		else
+
+		else {
 			properties.put(FRConstants.STNFRD_ANNOTATOR, annotations);
-		properties.put("ner.useSUTime", "false ");
-		properties.put("ner.applyNumericClassifiers", "false");
-		if(annotations!=null && annotations.contains("parse")){
-			properties.put("depparse.model", "edu/stanford/nlp/models/parser/nndep/english_SD.gz");
-			//properties.put("parse.maxlen", "30");
+			properties.put("ner.useSUTime", "false ");
+			properties.put("ner.applyNumericClassifiers", "false");
+			if(annotations!=null && annotations.contains("parse")){
+				properties.put("depparse.model", "edu/stanford/nlp/models/parser/nndep/english_SD.gz");
+				//properties.put("parse.maxlen", "30");
+			}
 		}
 		return new StanfordCoreNLP(properties);
 	}
+	
+	public static StanfordCoreNLP getGermanPipeline(String annotations) {
+
+		if (pipeline != null)
+			return pipeline;
+
+		Properties properties = new Properties();
+		if (annotations == null) {
+			properties.put(FRConstants.STNFRD_ANNOTATOR, FRConstants.GERMAN_ANNOTATIONS);
+			properties.put("tokenize.language","german");
+			properties.put("pos.model" ,"edu/stanford/nlp/models/pos-tagger/german-ud.tagger");
+			properties.put("tokenize.postProcessor","edu.stanford.nlp.international.german.process.GermanTokenizerPostProcessor");
+			properties.put("ner.model", "edu/stanford/nlp/models/ner/german.distsim.crf.ser.gz");
+			properties.put("ner.useSUTime", "false ");
+			properties.put("ner.applyNumericClassifiers", "false");
+		}
+		return new StanfordCoreNLP(properties);
+	}
+	
+	
+	
+	
+	
 
 	public static void resetPipeline() {
 		pipeline = null;

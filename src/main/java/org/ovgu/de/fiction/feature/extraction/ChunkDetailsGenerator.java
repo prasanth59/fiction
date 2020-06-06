@@ -48,6 +48,15 @@ public class ChunkDetailsGenerator {
 	final static Logger LOG = Logger.getLogger(ChunkDetailsGenerator.class);
 
 	private static Set<String> LOCATIVE_PREPOSITION_LIST;
+	private static Set<String> LOCATIVE_PREPOSITION_LIST_GERMAN;
+	private static Set<String> PUNCT_QUOTES_LIST_GERMAN;
+
+	private static List<String> negativeList;
+	private static List<String> positiveList;
+	private static List<String> neutralList;
+	
+	
+	
 	protected static Integer CHUNK_SIZE;
 	protected static Integer TTR_CHUNK_SIZE;
 	protected static String OUT_FOLDER_TOKENS;
@@ -56,7 +65,8 @@ public class ChunkDetailsGenerator {
 	private int NUM_OF_CHARS_PER_BOOK = -1;
 	private String CONTENT_EXTRCT_FOLDER;
 	StanfordCoreNLP SENTI_PIPELINE;
-
+	
+	
 	protected void init() throws NumberFormatException, IOException {
 
 		CHUNK_SIZE = Integer.parseInt(FRGeneralUtils.getPropertyVal(FRConstants.CHUNK_SIZE));
@@ -66,6 +76,14 @@ public class ChunkDetailsGenerator {
 		CONTENT_EXTRCT_FOLDER = FRGeneralUtils.getPropertyVal(FRConstants.OUT_FOLDER_CONTENT);
 
 		LOCATIVE_PREPOSITION_LIST = FRGeneralUtils.getPrepositionList();
+		LOCATIVE_PREPOSITION_LIST_GERMAN = FRGeneralUtils.getGermanPrepositionList();
+		PUNCT_QUOTES_LIST_GERMAN = FRGeneralUtils.getPunctQuoteList();
+		// list of german words for sentiments positive,negative,neutral.
+		negativeList = FRGeneralUtils.getNegativeWordsList();
+		positiveList = FRGeneralUtils.getPositiveWordsList();
+		neutralList = FRGeneralUtils.getNeutralWordsList();
+		// list of german words for sentiments positive,negative,neutral.
+
 		BOOK_NO = 0;
 		TIME = System.currentTimeMillis();
 
@@ -92,7 +110,8 @@ public class ChunkDetailsGenerator {
 				BookDetails book = new BookDetails();
 				book.setBookId(fileName);
 				book.setMetadata(FRGeneralUtils.getMetadata(fileName));
-				book.setChunks(getChunksFromFile(file.toString())); // this is a
+				String language = book.getMetadata().getLanguage();
+				book.setChunks(getChunksFromFile(file.toString(),language)); // this is a
 																	 // list of
 																	 // chunks,
 																	 // each
@@ -179,11 +198,12 @@ public class ChunkDetailsGenerator {
 	 *      signature. this path is a path to a single book, mind it!
 	 * @param path
 	 *            to book location
+	 * @param language 
 	 * @return : List of Chunks, Chunk has a feature vector object
 	 * @throws IOException
 	 * @throws InterruptedException 
 	 */
-	public List<Chunk> getChunksFromFile(String path) throws IOException, InterruptedException {
+	public List<Chunk> getChunksFromFile(String path, String language) throws IOException, InterruptedException {
 
 		int batchNumber;
 		List<Chunk> chunksList = new ArrayList<>();
@@ -193,7 +213,8 @@ public class ChunkDetailsGenerator {
 		quoteFeatureExtraction qfe = new quoteFeatureExtraction();
 		FeatureExtractorUtility feu = new FeatureExtractorUtility();
 		List<String> stopwords = Arrays.asList(FRGeneralUtils.getPropertyVal(FRConstants.STOPWORD_FICTION).split("\\|"));
-		Concept cncpt = wag.generateWordAttributes(Paths.get(path)); // this is
+		List<String> stopwords_german = Arrays.asList(FRGeneralUtils.getPropertyVal(FRConstants.STOPWORD_GERMAN).split("\\|"));
+		Concept cncpt = wag.generateWordAttributes(Paths.get(path), language); // this is
 																	 // a
 																	 // "word-token-pos-ner"
 																	 // list
@@ -292,130 +313,251 @@ public class ChunkDetailsGenerator {
 			double quoteValue = (double) quoteFeatureListPerChunk.get(batchCtr);
 			StringBuffer sentenceSbf = new StringBuffer();
 
-			for (int index = 0; index < chunkSize; index++) {// loop_over_tokens_of_a_given_chunk
-				Word token = wordList.get(wordcntr);
-				String l = token.getLemma();
+			
 
-				if (l.equals(FRConstants.P_TAG)) {
-					paragraphCount++;
-					wordcntr++;
-					index--;
-					continue;
-				}
-				if (l.equals(FRConstants.S_TAG)) {
-					/**
-					 * calculate sentiment for the previous formed sentence,
-					 * the choice of selecting a sentence is totally random
-					 * example, when the random number >5k and the num of selected sentences have not crossed , sampling bound = 10%_of_sentences_per_chunk
-					 */
-                    Random rnd = new Random();
-                    int randNum = rnd.nextInt(FRConstants.RANDOM_SENTENCES_SENTIM_TOP_VAL); //get_an_INT_less_than_10k
-                    
-					
-					if (sentenceSbf.toString().length()>0 && randNum<FRConstants.RANDOM_SENTENCES_SENTIM_MID_VAL && randomSntnCount<totalNumOfRandomSntnPerChunk) { // making_a_random_choice_here
-						// calculateSenti as=>
-						annotation = SENTI_PIPELINE.process(sentenceSbf.toString());
-						int score = 2; // Default as Neutral. 1 = Negative, 2 =
-						// Neutral, 3 = Positive
-						for (CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class))// ideally
-						// this
-						// loop
-						// runs
-						// once!
-						{
-							Tree tree = sentence.get(SentimentAnnotatedTree.class);
-							score = RNNCoreAnnotations.getPredictedClass(tree);
+			
+			if (language.equals(FRConstants.ENGLISH)) {
+
+				for (int index = 0; index < chunkSize; index++) {// loop_over_tokens_of_a_given_chunk
+					Word token = wordList.get(wordcntr);
+					String l = token.getLemma();
+
+					if (l.equals(FRConstants.P_TAG)) {
+						paragraphCount++;
+						wordcntr++;
+						index--;
+						continue;
+					}
+					if (l.equals(FRConstants.S_TAG)) {
+						/**
+						 * calculate sentiment for the previous formed sentence,
+						 * the choice of selecting a sentence is totally random
+						 * example, when the random number >5k and the num of selected sentences have not crossed , sampling bound = 10%_of_sentences_per_chunk
+						 */
+						Random rnd = new Random();
+						int randNum = rnd.nextInt(FRConstants.RANDOM_SENTENCES_SENTIM_TOP_VAL); //get_an_INT_less_than_10k
+
+
+						if (sentenceSbf.toString().length()>0 && randNum<FRConstants.RANDOM_SENTENCES_SENTIM_MID_VAL && randomSntnCount<totalNumOfRandomSntnPerChunk) { // making_a_random_choice_here
+							// calculateSenti as=>
+							annotation = SENTI_PIPELINE.process(sentenceSbf.toString());
+							int score = 2; // Default as Neutral. 1 = Negative, 2 =
+							// Neutral, 3 = Positive
+							for (CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class))// ideally
+								// this
+								// loop
+								// runs
+								// once!
+							{
+								Tree tree = sentence.get(SentimentAnnotatedTree.class);
+								score = RNNCoreAnnotations.getPredictedClass(tree);
+							}
+							if (score == 2)
+								senti_neutral_cnt++;
+							if (score == 1)
+								senti_negetiv_cnt++;
+							if (score == 3)
+								senti_positiv_cnt++;
+
+							randomSntnCount++;
 						}
-						if (score == 2)
-							senti_neutral_cnt++;
-						if (score == 1)
-							senti_negetiv_cnt++;
-						if (score == 3)
-							senti_positiv_cnt++;
-						
-						randomSntnCount++;
+						// reset the sentence buffer for next sentence
+						sentenceSbf = new StringBuffer();
+
+						/* partly end of sentiment calculation */
+						if (wordCountPerSntnc != 0) {
+							addToWordCountMap(raw, wordCountPerSntncMap, wordCountPerSntnc);
+						}
+						wordCountPerSntnc = 0;
+						sentenceCount++;
+						wordcntr++;
+						index--;
+						continue;
 					}
-					// reset the sentence buffer for next sentence
-					sentenceSbf = new StringBuffer();
+					/* append the token to form sentence. Below part needed for sentiment calculation */
 
-					/* partly end of sentiment calculation */
-					if (wordCountPerSntnc != 0) {
-						addToWordCountMap(raw, wordCountPerSntncMap, wordCountPerSntnc);
+					else if (!l.equals(FRConstants.S_TAG) && !l.equals(FRConstants.P_TAG)) {
+						sentenceSbf.append(" ").append(token.getOriginal());
 					}
-					wordCountPerSntnc = 0;
-					sentenceCount++;
-					wordcntr++;
-					index--;
-					continue;
-				}
-				/* append the token to form sentence. Below part needed for sentiment calculation */
 
-				else if (!l.equals(FRConstants.S_TAG) && !l.equals(FRConstants.P_TAG)) {
-					sentenceSbf.append(" ").append(token.getOriginal());
-				}
+					if (!FRGeneralUtils.hasPunctuation(l) && !stopwords.contains(l))
+						stpwrdPuncRmvd.add(l);
 
-				if (!FRGeneralUtils.hasPunctuation(l) && !stopwords.contains(l))
-					stpwrdPuncRmvd.add(l);
+					raw.add(token);
+					/* calculate Flesch reading score */
+					if (token.getNumOfSyllables() > 0) {
+						numOfSyllables += token.getNumOfSyllables();
+						properWordCount++;
+					}
+					/* calculate pos stats */
+					if (token.getPos().equals(FRConstants.PERSONAL_P)) {
+						personalPronounCount++;
+						if (l.equals(FRConstants.HE))
+							malePrpPosPronounCount++;
+						else if (l.equals(FRConstants.SHE))
+							femalePrpPosPronounCount++;
 
-				raw.add(token);
-				/* calculate Flesch reading score */
-				if (token.getNumOfSyllables() > 0) {
-					numOfSyllables += token.getNumOfSyllables();
-					properWordCount++;
-				}
-				/* calculate pos stats */
-				if (token.getPos().equals(FRConstants.PERSONAL_P)) {
-					personalPronounCount++;
-					if (l.equals(FRConstants.HE))
-						malePrpPosPronounCount++;
-					else if (l.equals(FRConstants.SHE))
-						femalePrpPosPronounCount++;
+					} else if (token.getPos().equals(FRConstants.POSSESIV_P)) {
+						possPronounCount++;
+						if (l.equals(FRConstants.HE))
+							malePrpPosPronounCount++;
+						else if (l.equals(FRConstants.SHE))
+							femalePrpPosPronounCount++;
 
-				} else if (token.getPos().equals(FRConstants.POSSESIV_P)) {
-					possPronounCount++;
-					if (l.equals(FRConstants.HE))
-						malePrpPosPronounCount++;
-					else if (l.equals(FRConstants.SHE))
-						femalePrpPosPronounCount++;
-
-				} else if (token.getPos().equals(FRConstants.PREPOSITION)) {
-					if (LOCATIVE_PREPOSITION_LIST.contains(l))
-						locativePrepositionCount++;
-					if (l.equals(FRConstants.IN)) {
-						int temp = wordcntr;
-						if ((l.equals(FRConstants.IN) && wordList.get(++temp).getLemma().equals(FRConstants.FRONT)
-								&& wordList.get(++temp).getLemma().equals(FRConstants.OF)))
+					} else if (token.getPos().equals(FRConstants.PREPOSITION)) {
+						if (LOCATIVE_PREPOSITION_LIST.contains(l))
 							locativePrepositionCount++;
-					}
+						if (l.equals(FRConstants.IN)) {
+							int temp = wordcntr;
+							if ((l.equals(FRConstants.IN) && wordList.get(++temp).getLemma().equals(FRConstants.FRONT)
+									&& wordList.get(++temp).getLemma().equals(FRConstants.OF)))
+								locativePrepositionCount++;
+						}
 
-				} else if (l.equals(FRConstants.NEXT)) {
-					int temp = wordcntr;
-					if (l.equals(FRConstants.NEXT) && wordList.get(++temp).getLemma().equals(FRConstants.TO))
+					} else if (l.equals(FRConstants.NEXT)) {
+						int temp = wordcntr;
+						if (l.equals(FRConstants.NEXT) && wordList.get(++temp).getLemma().equals(FRConstants.TO))
+							locativePrepositionCount++;
+					} else if (token.getPos().equals(FRConstants.THERE_EX) || token.getLemma().equals(FRConstants.COME))
 						locativePrepositionCount++;
-				} else if (token.getPos().equals(FRConstants.THERE_EX) || token.getLemma().equals(FRConstants.COME))
-					locativePrepositionCount++;
-				else if (token.getPos().equals(FRConstants.INTERJECTION))
-					intrjctnCount++;
-				else if (token.getPos().equals(FRConstants.COORD_CONJUNCTION))
-					coordConj++;
-				else if (token.getLemma().equals(FRConstants.COMMA))
-					commaCount++;
-				else if (token.getLemma().equals(FRConstants.PERIOD)) {
-					periodCount++;
-				} else if (token.getLemma().equals(FRConstants.COLON))
-					colonCount++;
-				else if (token.getLemma().equals(FRConstants.SEMI_COLON))
-					semiColonCount++;
-				else if (token.getLemma().equals(FRConstants.HYPHEN))
-					hyphenCount++;
-				else if (token.getLemma().equals(FRConstants.EXCLAMATION))
-					intrjctnCount++;
-				else if (token.getLemma().equals(FRConstants.DOUBLE_QUOTES))
-					convCount++;
+					else if (token.getPos().equals(FRConstants.INTERJECTION))
+						intrjctnCount++;
+					else if (token.getPos().equals(FRConstants.COORD_CONJUNCTION))
+						coordConj++;
+					else if (token.getLemma().equals(FRConstants.COMMA))
+						commaCount++;
+					else if (token.getLemma().equals(FRConstants.PERIOD)) {
+						periodCount++;
+					} else if (token.getLemma().equals(FRConstants.COLON))
+						colonCount++;
+					else if (token.getLemma().equals(FRConstants.SEMI_COLON))
+						semiColonCount++;
+					else if (token.getLemma().equals(FRConstants.HYPHEN))
+						hyphenCount++;
+					else if (token.getLemma().equals(FRConstants.EXCLAMATION))
+						intrjctnCount++;
+					else if (token.getLemma().equals(FRConstants.DOUBLE_QUOTES))
+						convCount++;
 
-				wordcntr++;
-				wordCountPerSntnc++;
+					wordcntr++;
+					wordCountPerSntnc++;
+				}
+				
+			} else if (language.equals(FRConstants.GERMAN)){ 
+				//chunk level features for german text
+				for (int index = 0; index < chunkSize; index++) {
+					Word token = wordList.get(wordcntr);
+					String l = token.getLemma();
+					if (l.equals(FRConstants.P_TAG)) {
+						paragraphCount++;
+						wordcntr++;
+						index--;
+						continue;
+					}
+					if (l.equals(FRConstants.S_TAG)) {
+						Random rnd = new Random();
+						int randNum = rnd.nextInt(FRConstants.RANDOM_SENTENCES_SENTIM_TOP_VAL); //get_an_INT_less_than_10k
+
+
+						if (sentenceSbf.toString().length()>0 && randNum<FRConstants.RANDOM_SENTENCES_SENTIM_MID_VAL && randomSntnCount<totalNumOfRandomSntnPerChunk) {
+							int postiveWordCount = 0;
+							int negativeWordCount = 0;
+							int neutralWordCount = 0;
+					
+							String sentence = sentenceSbf.toString();
+							String[] sentenceList = sentence.split(" ");
+							for (int i = 0; i < sentenceList.length; i++) {
+								String word = sentenceList[i];
+								if(positiveList.contains(word)) {
+									postiveWordCount++;
+								}
+								if(negativeList.contains(word)) {
+									negativeWordCount++;
+								}
+								if(neutralList.contains(word)) {
+									neutralWordCount++;
+								}	
+							}
+							if(postiveWordCount > negativeWordCount && postiveWordCount > neutralWordCount)
+					        {
+								senti_positiv_cnt++;
+					        }
+					        else if(negativeWordCount > neutralWordCount)
+					        {
+					        	senti_negetiv_cnt++;
+					        }
+					        else
+					        {
+					        	senti_neutral_cnt++;
+					        }
+							randomSntnCount++;
+						}
+						// reset the sentence buffer for next sentence
+						sentenceSbf = new StringBuffer();
+
+						/* partly end of sentiment calculation */
+						if (wordCountPerSntnc != 0) {
+							addToWordCountMap(raw, wordCountPerSntncMap, wordCountPerSntnc);
+						}
+						wordCountPerSntnc = 0;
+						sentenceCount++;
+						wordcntr++;
+						index--;
+						continue;
+						
+					}else if (!l.equals(FRConstants.S_TAG) && !l.equals(FRConstants.P_TAG)) {
+						sentenceSbf.append(" ").append(token.getOriginal());
+					}
+					if (!FRGeneralUtils.hasGermanPunctuation(l) && !stopwords_german.contains(l)) 
+						stpwrdPuncRmvd.add(l);
+					raw.add(token);
+					if (token.getNumOfSyllables() > 0) {
+						numOfSyllables += token.getNumOfSyllables();
+						properWordCount++;
+					}
+					if (token.getPos().equals(FRConstants.PERSONAL_P_GERMAN)) {
+						personalPronounCount++;
+						if (l.equals(FRConstants.ER))
+							malePrpPosPronounCount++;
+						else if (l.equals(FRConstants.SIE))
+							femalePrpPosPronounCount++;
+
+					} else if (token.getPos().equals(FRConstants.POSSESIV_P_GERMAN)) {
+						possPronounCount++;
+						if (l.equals(FRConstants.SEIN))
+							malePrpPosPronounCount++;
+						else if (l.equals(FRConstants.IHR))
+							femalePrpPosPronounCount++;
+
+					} else if (token.getPos().equals(FRConstants.GERMAN_PREPOSITION) && LOCATIVE_PREPOSITION_LIST_GERMAN.contains(l)) {
+						locativePrepositionCount++;
+					}
+					else if (token.getPos().equals(FRConstants.GERMAN_INTERJECTION))
+						intrjctnCount++;
+					else if (token.getPos().equals(FRConstants.COORD_CONJUNCTION_GERMAN))
+						coordConj++;
+					else if (token.getLemma().equals(FRConstants.COMMA))
+						commaCount++;
+					else if (token.getLemma().equals(FRConstants.PERIOD)) {
+						periodCount++;
+					} else if (token.getLemma().equals(FRConstants.COLON))
+						colonCount++;
+					else if (token.getLemma().equals(FRConstants.SEMI_COLON))
+						semiColonCount++;
+					else if (token.getLemma().equals(FRConstants.HYPHEN))
+						hyphenCount++;
+					else if (token.getLemma().equals(FRConstants.EXCLAMATION))
+						intrjctnCount++;
+					else if (token.getPos().equals(FRConstants.QUOTES_GERMAN) && PUNCT_QUOTES_LIST_GERMAN.contains(l))
+						convCount++;
+
+					wordcntr++;
+					wordCountPerSntnc++;
+
+				}
 			}
+				
+			
 			addToWordCountMap(raw, wordCountPerSntncMap, wordCountPerSntnc);
 
 			Chunk chunk = new Chunk();
