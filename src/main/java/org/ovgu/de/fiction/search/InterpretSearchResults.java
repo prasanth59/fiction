@@ -4,14 +4,20 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.SortedMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.stat.inference.ChiSquareTest;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.ovgu.de.fiction.feature.extraction.FeatureExtractorUtility;
 import org.ovgu.de.fiction.model.TopKResults;
 import org.ovgu.de.fiction.utils.FRConstants;
@@ -50,19 +56,91 @@ public class InterpretSearchResults {
  *  Find out over entire space:
  *  3) Perform PCA of the entire Feature-Instance space to rank features
  * @param topKResults
+ * @param qryBookNum 
  * @throws Exception 
  */
-	public Map<String,Map<String,String>> performStatiscalAnalysis(TopKResults topKResults) throws Exception {
+	public Map<String,Map<String,String>> performStatiscalAnalysis(TopKResults topKResults, String qryBookNum) throws Exception {
 		Map<String, Map<String, double[]>> books = topKResults.getBooks();
 		SortedMap<Double, String> results_topK = topKResults.getResults_topK();
-		
 		Map<Integer , TopKResults> searched_result_bins = createBinsModified(books,results_topK); // createBins(books,results_topK);
 		writeBinsToFiles(searched_result_bins,topKResults.getSimilarities());
 		Map<String,Map<String,String>> stats = getStatistics(FRGeneralUtils.getPropertyVal("file.results.arff"));
+		
+
+		
+
+		String shortBookId = getBookId(qryBookNum);
+		
+		
+		
+		List<String> topFeatureList = new LinkedList<String>();
+		Iterator featureIterator = stats.get("FEAT").entrySet().iterator(); 
+		while (featureIterator.hasNext()) { 
+			Map.Entry mapElement = (Map.Entry)featureIterator.next(); 
+            String feature = (String) mapElement.getValue(); 
+            topFeatureList.add(feature);
+        }
+		
+		
+		List<String> topBooksList = new LinkedList<String>();
+		Iterator bookIterator = results_topK.entrySet().iterator(); 
+		while (bookIterator.hasNext()) { 
+            Map.Entry mapElement = (Map.Entry)bookIterator.next(); 
+            String book = (String) mapElement.getValue(); 
+            String shortBookName = getBookId(book);
+            topBooksList.add(shortBookName);
+        } 
+		
+		JSONObject bookObject = new JSONObject();
+		bookObject.put("features" , topFeatureList);
+		bookObject.put("books" , topBooksList);
+		
+	
+		JSONObject mainObject = new JSONObject();
+		mainObject.put(shortBookId , bookObject);
+		
+		
+		
+		String path = "/Users/bhargavmuktevi/Desktop/SIMFIC TESTING/jsonFile" +  shortBookId     + ".json";
+        
+        
+      //Write JSON file
+        try (FileWriter file = new FileWriter(path)) {
+
+        	file.write(mainObject.toString());
+        	file.flush();
+
+        } catch (IOException e) {
+        	e.printStackTrace();
+        }
+		
+		
 		//rankFeatures(FRGeneralUtils.getPropertyVal("file.results.arff"));
 		return stats;
 		
 	}
+	
+	
+	private String getBookId(String queryBookName) {
+		String pattern = "^pg(\\d+)";
+		Pattern r = Pattern.compile(pattern);
+		Matcher m = r.matcher(queryBookName);
+		if (m.find( )) {
+			return m.group(1);
+		}else {
+			System.out.println("NO MATCH");
+			return "NO MATCH";
+		}
+
+	}
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	private Map<String,Map<String,String>> getStatistics(String ARFF_RESULTS_FILE) throws Exception {
 		Map<String,Map<String,String>> stats = new HashMap<>();
@@ -126,7 +204,7 @@ public class InterpretSearchResults {
 	    Instances newData2 = Filter.useFilter(instances, filter2);
 	    //System.out.println("** Reduced Dimensionality 2 "+newData2.toSummaryString());
 	    System.out.println("** Printing Top Features ***************");
-	    
+  
 	    System.out.println("1st = "+newData2.attribute(0).toString().split(" ")[1]);
 	    System.out.println("2nd = "+newData2.attribute(1).toString().split(" ")[1]);
 	    System.out.println("3rd = "+newData2.attribute(2).toString().split(" ")[1]);
