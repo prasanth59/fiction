@@ -124,7 +124,7 @@ public class ChunkDetailsGenerator {
 				
 				// extracting features from python generated csv feature file
 				HashMap<Integer,Double> pythonFeaturesMap = new HashMap<Integer, Double>();
-				String pythonIntegratedCsvPath = "/Users/bhargavmuktevi/Desktop/SIMFIC Project/pythonIntegration/features.csv";
+				String pythonIntegratedCsvPath = FRGeneralUtils.getPropertyVal(FRConstants.GENERATED_FEATURES);
 				String line = ""; 
 				try   
 				{  
@@ -170,7 +170,7 @@ public class ChunkDetailsGenerator {
 				book.setNewFeature44(pythonFeaturesMap.get(21));
 				book.setNewFeature45(pythonFeaturesMap.get(22));
 				book.setNewFeature46(pythonFeaturesMap.get(23));
-				
+//				
 				books.add(book);
 
 				 //LOG.debug("End Generate token for : " + fileName + " " + ((System.currentTimeMillis() - TIME) / 1000));
@@ -682,8 +682,8 @@ public class ChunkDetailsGenerator {
 	}
 	
 	private void encode_book(List<String>wordLemma, String book_id,String filePath, ArrayList<String> characterNameList, ArrayList<Integer> characterCountList) throws IOException, InterruptedException {
-
-		File file = new File("/Users/bhargavmuktevi/Desktop/SIMFIC Project/pythonIntegration/output.txt");
+		String out_txt_path= FRGeneralUtils.getPropertyVal(FRConstants.OUTPUT_TEXT);
+		File file = new File(out_txt_path);
 		if (file.exists() == true) {
 			System.out.println("deleted file");
 			file.delete();
@@ -721,7 +721,10 @@ public class ChunkDetailsGenerator {
 		
 		
 //		Code to execute python script with passed parameters
-		String[] cmd = { "py","-W ignore", "/Users/bhargavmuktevi/Desktop/SIMFIC Project/pythonIntegration/Feature3.py", "/Users/bhargavmuktevi/Desktop/SIMFIC Project/pythonIntegration/output.txt", filePath,"/Users/bhargavmuktevi/Desktop/SIMFIC Project/pythonIntegration/features.csv"};
+		String pythonScriptPath=FRGeneralUtils.getPropertyVal(FRConstants.FEATURES_SCRIPT_PYTHON);
+		String generatedCSVPath=FRGeneralUtils.getPropertyVal(FRConstants.GENERATED_FEATURES);
+		
+		String[] cmd = { "py","-W ignore", pythonScriptPath,out_txt_path , filePath,generatedCSVPath};
 		Process p = Runtime.getRuntime().exec(cmd);
 
 		String s = null;
@@ -731,6 +734,8 @@ public class ChunkDetailsGenerator {
 		}
 		p.waitFor();
 		p.destroy();
+
+
 
 	}
 	

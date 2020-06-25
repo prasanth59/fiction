@@ -19,6 +19,15 @@ public interface FRConstants {
 	public static final String OUT_FOLDER_TOKENS = "folder.out.chunks";
 	public static final String STOPWORD_FICTION = "stopword.fiction";
 	public static final String STOPWORD_GERMAN = "stopword.german";
+	
+	
+	
+	
+	public static final String OUTPUT_TEXT= "features.output.path";
+	public static final String GENERATED_FEATURES= "file.features.python";
+	public static final String TOPKRESULTS_FILE= "file.results.csv";
+	public static final String FEATURES_SCRIPT_PYTHON= "python.file.path";
+
 
 	/* regex */
 	public static final String REGEX_ALL_PUNCTUATION = "[\\s\"\\.\\,\\?\\!\\:\\;\\'-]";
@@ -32,6 +41,7 @@ public interface FRConstants {
 	public static final String REGEX_TRAILING_SPACE = "^\\s+|\\s+$";
 	public static final String P_TAG = "<p>";
 	public static final String S_TAG = "<s>";
+	
 
 	/* Stanford api related */
 	public static final String STNFRD_LEMMA_ANNOTATIONS = "tokenize,ssplit,pos,lemma,ner"; // "tokenize,ssplit,pos,lemma,ner";
@@ -161,7 +171,7 @@ public interface FRConstants {
 	public static final String SIMI_INCLUDE_TTR_NUMCHARS="IN";
 	public static final String SIMI_EXCLUDE_TTR_NUMCHARS="EX";
 
-	public static final double SIMILARITY_CUTOFF = 0;
+	public static final double SIMILARITY_CUTOFF = 0.;
 	public static final int FEATURE_NUMBER = 47;
 	public static final int FEATURE_NUMBER_GLOBAL = 3;
 	public static final double FEATURE_WEIGHT_MORE = 0.85;
@@ -280,9 +290,9 @@ public interface FRConstants {
 	
 	public static final int START_MID_FEATURE_44= 44;
 	
-	public static final int MID_END_FEATURE_45= 45;
-	
-	public static final int START_END_FEATURE_46= 46;
+    public static final int MID_END_FEATURE_45= 45;
+
+    public static final int START_END_FEATURE_46= 46;
 	
 	
 	

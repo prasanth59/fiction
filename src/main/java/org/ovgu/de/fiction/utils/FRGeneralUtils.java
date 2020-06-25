@@ -92,7 +92,7 @@ public class FRGeneralUtils {
 
 	public static boolean hasGermanPunctuation(String token) {
 		// TODO Auto-generated method stub
-		return token.isEmpty() || Pattern.matches(FRConstants.REGEX_NON_WORD, token) || token.equals("``") || token.equals("''") || token.equals(">>") || token.equals("<<");
+		return token.isEmpty() || Pattern.matches(FRConstants.REGEX_NON_WORD, token) || token.equals("``") || token.equals("''") || token.equals("»") || token.equals("«");
 	}
 	
 	
@@ -140,8 +140,8 @@ public class FRGeneralUtils {
 	
 	public static Set<String> getPunctQuoteList() {
 		Set<String> doubleQuoteListGerman = new HashSet<>();
-		doubleQuoteListGerman.add(">>");
-		doubleQuoteListGerman.add("<<");
+		doubleQuoteListGerman.add("»");
+		doubleQuoteListGerman.add("«");
 		doubleQuoteListGerman.add("``");
 		return doubleQuoteListGerman;
 	}
